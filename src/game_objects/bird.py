@@ -20,7 +20,7 @@ class Bird(Sprite):
         self.vel = 0
         self.pressed = False
 
-    def update(self, flying, game_over):
+    def update(self, flying : bool, game_over : bool):
 
         if flying:
             # Gravity (just to explain what's going on)

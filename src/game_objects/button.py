@@ -6,7 +6,7 @@ class Button():
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
 
-    def draw(self, screen):
+    def draw(self, screen : Surface):
         action = False
 
         # Get mouse position

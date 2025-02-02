@@ -16,7 +16,7 @@ class Pipe(Sprite):
             case -1:
                 self.rect.topleft = [x,y + int(pipe_gap / 2)]
 
-    def update(self, scroll_speed):
+    def update(self, scroll_speed : int):
         self.rect.x -= scroll_speed
 
         # Delete the pipe when it disappears from the screen

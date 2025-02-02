@@ -17,6 +17,8 @@ fps = int(config["Player"]["fps"])
 
 WIDTH = int(config["Screen"]["width"])
 HEIGHT = int(config["Screen"]["height"])
+PIPE_GAP = int(config["Game"]["pipe_gap"])
+PIPE_FRECUENCY = int(config["Game"]["pipe_frecuency"])
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -33,9 +35,7 @@ ground_scroll = 0
 scroll_speed = 3
 flying = False
 game_over = False
-pipe_gap = 120
-pipe_frecuency = 1500
-last_pipe = pygame.time.get_ticks() - pipe_frecuency
+last_pipe = pygame.time.get_ticks() - PIPE_FRECUENCY
 score = 0
 pass_pipe = False
 
@@ -109,10 +109,10 @@ while run:
     if not game_over and flying:
         # Generate new pipes
         current_time = pygame.time.get_ticks()
-        if current_time - last_pipe > pipe_frecuency:
+        if current_time - last_pipe > PIPE_FRECUENCY:
             pipe_height = random.randint(-100,100)
-            btm_pipe = Pipe(WIDTH, int(HEIGHT/2) + pipe_height, pipe_gap)
-            top_pipe = Pipe(WIDTH, int(HEIGHT/2) + pipe_height, pipe_gap, 1)
+            btm_pipe = Pipe(WIDTH, int(HEIGHT/2) + pipe_height, PIPE_GAP)
+            top_pipe = Pipe(WIDTH, int(HEIGHT/2) + pipe_height, PIPE_GAP, 1)
             pipe_group.add(btm_pipe)
             pipe_group.add(top_pipe)
             last_pipe = current_time
