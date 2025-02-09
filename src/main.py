@@ -6,6 +6,7 @@ from game_objects.button import Button
 from utils.image_text import draw_text
 import random
 from configparser import ConfigParser
+from utils import camera_manager
 
 config = ConfigParser()
 config.read("config/settings.cfg")
@@ -39,6 +40,10 @@ last_pipe = pygame.time.get_ticks() - PIPE_FRECUENCY
 score = 0
 pass_pipe = False
 
+
+# Initialize camera manager
+camera = camera_manager.CameraManager()
+
 def reset_game():
     pipe_group.empty()
     flappy.rect.x = 70
@@ -59,7 +64,7 @@ button_img = pygame.transform.scale(button_img, (100,30))
 bird_group = pygame.sprite.Group()
 pipe_group = pygame.sprite.Group()
 
-flappy = Bird(70, int(HEIGHT/2))
+flappy = Bird(70, int(HEIGHT/2), camera)
 
 bird_group.add(flappy)
 
@@ -135,9 +140,10 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
-        if event.type == pygame.KEYDOWN and not flying and not game_over:
-            flying = True
+    if camera.pulse_detected and not flying and not game_over:
+        flying = True
 
     pygame.display.update()
+
 
 pygame.quit()
