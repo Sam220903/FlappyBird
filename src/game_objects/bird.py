@@ -14,8 +14,15 @@ class Bird(Sprite):
         self.camera = camera_manager
         
         for num in range(1, 4):
-            img = image.load(f'assets/images/bird{num}.png')
-            img = transform.scale(img, (32, 25))
+            img = image.load(f'assets/images/golden_eagle{num}.png')
+            original_width, original_height = img.get_size()
+            
+            new_height = 30  # Altura deseada
+            scale_factor = new_height / original_height  # Factor de escala
+            
+            new_width = int(original_width * scale_factor)  # Nuevo ancho proporcional
+            
+            img = transform.scale(img, (new_width, new_height))
             self.images.append(img)
 
         self.image = self.images[self.index]

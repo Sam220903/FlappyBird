@@ -52,8 +52,8 @@ def reset_game():
     return score
 
 # Load images
-bg = pygame.image.load('assets/images/bg.png')
-ground_img = pygame.image.load('assets/images/ground.png')
+bg = pygame.image.load('assets/images/campus_upaep.png')
+ground_img = pygame.image.load('assets/images/ground1.png')
 button_img = pygame.image.load('assets/images/restart.png')
 
 # Reduce images size to fit the screen
