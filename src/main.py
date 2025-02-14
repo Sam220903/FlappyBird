@@ -7,7 +7,9 @@ from utils.image_text import draw_text
 import random
 from configparser import ConfigParser
 from utils import camera_manager
+from game import Game
 
+"""
 config = ConfigParser()
 config.read("config/settings.cfg")
 
@@ -18,12 +20,13 @@ fps = int(config["Player"]["fps"])
 
 WIDTH = int(config["Screen"]["width"])
 HEIGHT = int(config["Screen"]["height"])
-PIPE_GAP = int(config["Game"]["pipe_gap"])
-PIPE_FRECUENCY = int(config["Game"]["pipe_frecuency"])
+PIPE_GAP = int(config["LVL3"]["pipe_gap"])
+PIPE_FRECUENCY = int(config["LVL3"]["pipe_frecuency"])
+SCROLL_SPEED = int(config["LVL3"]["scroll_speed"])
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-pygame.display.set_caption('Flappy Bird')
+pygame.display.set_caption('Slappy Bird')
 
 # Define font
 font = pygame.font.SysFont('Bauhaus 93', 40)
@@ -33,7 +36,6 @@ white = (255, 255, 255)
 
 # Define game variables
 ground_scroll = 0
-scroll_speed = 3
 flying = False
 game_over = False
 last_pipe = pygame.time.get_ticks() - PIPE_FRECUENCY
@@ -123,12 +125,12 @@ while run:
             last_pipe = current_time
 
         # Scroll ground
-        ground_scroll -= scroll_speed
+        ground_scroll -= SCROLL_SPEED
 
         if abs(ground_scroll) > 35 :
             ground_scroll = 0
 
-        pipe_group.update(scroll_speed)
+        pipe_group.update(SCROLL_SPEED)
 
     # Check for game over and reset
     if game_over:
@@ -147,3 +149,9 @@ while run:
 
 
 pygame.quit()
+
+"""
+
+if __name__ == "__main__":
+    game = Game()
+    game.run()

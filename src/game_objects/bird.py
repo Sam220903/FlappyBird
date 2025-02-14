@@ -1,6 +1,8 @@
 from pygame.sprite import Sprite
 from pygame import image, transform
 from utils import camera_manager as cm
+from configparser import ConfigParser
+
 
 class Bird(Sprite):
 
@@ -12,9 +14,14 @@ class Bird(Sprite):
         self.initial_x = x
         self.initial_y = y  
         self.camera = camera_manager
+        self.config = ConfigParser()
+        self.config.read("config/settings.cfg")
         
-        for num in range(1, 4):
-            img = image.load(f'assets/images/golden_eagle{num}.png')
+
+        for num in range(1, 5):
+            # f'assets/images/golden_eagle{num}.png'
+            bird_img = self.config["Game"]["bird" + str(num)]
+            img = image.load(bird_img)
             original_width, original_height = img.get_size()
             
             new_height = 30  # Altura deseada
