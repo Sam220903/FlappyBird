@@ -24,7 +24,29 @@ class CameraManager:
             if hands:
                 hand1 = hands[0]
                 fingers = self.detector.fingersUp(hand1)
-                self.pulse_detected = all(f == 0 for f in fingers)  # Si todos los dedos están cerrados, detecta el pulso
+
+                # Si todos los dedos están cerrados, detecta el pulso
+                self.pulse_detected = all(f == 0 for f in fingers)
+                
+
+            cv2.imshow("Camera Feed", frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                self.stop()
+                break
+
+    def difficulty(self):
+        while self.running:
+            ret, frame = self.cap.read()
+            if not ret:
+                continue
+
+            hands, frame = self.detector.findHands(frame, draw=False)
+
+            if hands:
+                hand1 = hands[0]
+                fingers = self.detector.fingersUp(hand1)
+                print(fingers)
+                return fingers
 
             cv2.imshow("Camera Feed", frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
