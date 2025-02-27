@@ -36,7 +36,7 @@ class Game:
         pygame.display.set_caption('Slappy Bird')
 
         # Define font
-        self.font = pygame.font.SysFont(str(self.config["Game"]["font"]), int(self.config["Game"]["font_size"]))
+        self.font = pygame.freetype.SysFont(str(self.config["Game"]["font"]), int(self.config["Game"]["font_size"]))
 
         # Define colors
         self.font_color = (255,255,255)
@@ -59,6 +59,21 @@ class Game:
         self.logo = pygame.image.load(self.config["Game"]["logo"])
         self.start_btn = pygame.image.load(self.config["Game"]["start_btn"])
         self.restart_btn = pygame.image.load(self.config["Game"]["restart_btn"])
+
+        # Cargar imágenes de las manos
+        self.hand0 = pygame.image.load(self.config["Game"]["hand0"])
+        self.hand1 = pygame.image.load(self.config["Game"]["hand1"])
+        self.hand2 = pygame.image.load(self.config["Game"]["hand2"])
+        self.hand3 = pygame.image.load(self.config["Game"]["hand3"])
+        self.hand4 = pygame.image.load(self.config["Game"]["hand4"])
+        self.hand5 = pygame.image.load(self.config["Game"]["hand5"])
+
+        self.hand0 = pygame.transform.scale(self.hand0, (100, 100))
+        self.hand1 = pygame.transform.scale(self.hand1, (100, 100))
+        self.hand2 = pygame.transform.scale(self.hand2, (100, 100))
+        self.hand3 = pygame.transform.scale(self.hand3, (100, 100))
+        self.hand4 = pygame.transform.scale(self.hand4, (100, 100))
+        self.hand5 = pygame.transform.scale(self.hand5, (100, 100))
 
         # Reduce images size to fit the screen
         self.bg = pygame.transform.scale(self.bg, (self.WIDTH, 384))
@@ -107,7 +122,7 @@ class Game:
                         self.score += 1
                         self.pass_pipe = False
 
-            draw_text(str(self.score), self.font, self.font_color, int(self.WIDTH/2), 20, self.screen)
+            draw_text(str(self.score), self.font, self.font_color, (0,0,0), int(self.WIDTH/2), 20, self.screen)
 
             # Look for collision
             if pygame.sprite.groupcollide(self.bird_group, self.pipe_group, False, False) or self.flappy.rect.top < 0:
@@ -161,6 +176,7 @@ class Game:
         self.flappy.rect.x = 70
         self.flappy.rect.y = int(self.HEIGHT/2)
         self.score = 0
+        self.choose_difficulty()
         return self.score
     
     def start_screen(self):
@@ -201,10 +217,18 @@ class Game:
             self.screen.blit(self.bg, (0, 0))
             self.screen.blit(self.ground_img, (self.ground_scroll, 384))
 
+            draw_text("Elige la dificultad", self.font, self.font_color, (0,0,0) ,self.WIDTH // 2 - 150, self.HEIGHT // 2 - 220, self.screen)
+
+            
+            # Dibujar manos
+            self.screen.blit(self.hand1, (self.WIDTH // 2 - 120, self.HEIGHT // 2 - 150))
+            self.screen.blit(self.hand2, (self.WIDTH // 2 - 120, self.HEIGHT // 2 - 50))  
+            self.screen.blit(self.hand3, (self.WIDTH // 2 - 120, self.HEIGHT // 2 + 50))
+
             # Dibujar botones con etiquetas
-            draw_text("Easy", self.font, self.font_color, self.WIDTH // 2 - 20, self.HEIGHT // 2 - 120, self.screen)
-            draw_text("Medium", self.font, self.font_color, self.WIDTH // 2 - 35, self.HEIGHT // 2 - 20, self.screen)
-            draw_text("Hard", self.font, self.font_color, self.WIDTH // 2 - 20, self.HEIGHT // 2 + 80, self.screen)
+            draw_text("Fácil", self.font, self.font_color, (0,0,0), self.WIDTH // 2 - 20, self.HEIGHT // 2 - 120, self.screen)
+            draw_text("Medio", self.font, self.font_color, (0,0,0), self.WIDTH // 2 - 20, self.HEIGHT // 2 - 20, self.screen)
+            draw_text("Difícil", self.font, self.font_color, (0,0,0), self.WIDTH // 2 - 20, self.HEIGHT // 2 + 80, self.screen)
 
             pygame.display.update()
 
