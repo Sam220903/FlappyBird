@@ -6,7 +6,7 @@ from configparser import ConfigParser
 
 class Bird(Sprite):
 
-    def __init__(self, x: int, y: int, camera_manager: cm.CameraManager):
+    def __init__(self, x: int, y: int, camera_manager: cm.CameraManager, gravity):
         super().__init__()
         self.images = []
         self.index = 0
@@ -16,6 +16,8 @@ class Bird(Sprite):
         self.camera = camera_manager
         self.config = ConfigParser()
         self.config.read("config/settings.cfg")
+        self.gravity = gravity
+
         
 
         for num in range(1, 5):
@@ -40,7 +42,7 @@ class Bird(Sprite):
 
     def update(self, flying: bool, game_over: bool):
         if flying:
-            self.vel += 0.4  # Simulación de gravedad
+            self.vel += self.gravity  # Simulación de gravedad
             self.vel = min(self.vel, 10)  # Límite de velocidad
 
             if self.rect.bottom <= 384:

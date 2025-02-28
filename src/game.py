@@ -22,15 +22,18 @@ class Game:
 
         self.easy = {"scroll_speed": int(self.config["LVL1"]["scroll_speed"]),
                      "pipe_frequency": int(self.config["LVL1"]["pipe_frequency"]),
-                     "pipe_gap": int(self.config["LVL1"]["pipe_gap"])}
+                     "pipe_gap": int(self.config["LVL1"]["pipe_gap"]),
+                     "gravity": float(self.config["LVL1"]["gravity"])}
         
         self.medium = {"scroll_speed": int(self.config["LVL2"]["scroll_speed"]),
                        "pipe_frequency": int(self.config["LVL2"]["pipe_frequency"]),
-                       "pipe_gap": int(self.config["LVL2"]["pipe_gap"])}
+                       "pipe_gap": int(self.config["LVL2"]["pipe_gap"]),
+                       "gravity": float(self.config["LVL2"]["gravity"])}
 
         self.hard = {"scroll_speed": int(self.config["LVL3"]["scroll_speed"]),
                      "pipe_frequency": int(self.config["LVL3"]["pipe_frequency"]),
-                     "pipe_gap": int(self.config["LVL3"]["pipe_gap"])}
+                     "pipe_gap": int(self.config["LVL3"]["pipe_gap"]),
+                     "gravity": float(self.config["LVL3"]["gravity"])}
 
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption('Slappy Bird')
@@ -79,17 +82,14 @@ class Game:
         self.bg = pygame.transform.scale(self.bg, (self.WIDTH, 384))
         self.ground_img = pygame.transform.scale(self.ground_img, (self.WIDTH + 35, 84))
         self.logo = pygame.transform.scale(self.logo, (3*int(self.WIDTH/4), int(self.HEIGHT/4)))
-        self.start_btn = pygame.transform.scale(self.start_btn, (100,30))
+        self.start_btn = pygame.transform.scale(self.start_btn, (100,35))
         self.restart_btn = pygame.transform.scale(self.restart_btn, (100,30))
 
         self.bird_group = pygame.sprite.Group()
         self.pipe_group = pygame.sprite.Group()
 
-        self.flappy = Bird(70, int(self.HEIGHT/2), self.camera)
-        self.bird_group.add(self.flappy)
-
         # Create button instance
-        self.start = Button(self.WIDTH // 2 - 50, self.HEIGHT // 2 - 50, self.start_btn)
+        self.start = Button(self.WIDTH // 2 - 50, self.HEIGHT // 2 - 25, self.start_btn)
 
         # Create restart button instance
         self.restart = Button(self.WIDTH // 2 - 50, self.HEIGHT // 2 - 50, self.restart_btn)
@@ -208,6 +208,9 @@ class Game:
         self.PIPE_FREQUENCY = difficulty.get("pipe_frequency")
         self.PIPE_GAP = difficulty.get("pipe_gap")
         self.last_pipe = pygame.time.get_ticks() - self.PIPE_FREQUENCY
+        self.flappy = Bird(70, int(self.HEIGHT/2), self.camera, difficulty.get("gravity"))
+        self.bird_group.empty()
+        self.bird_group.add(self.flappy)
 
 
     def choose_difficulty(self):
