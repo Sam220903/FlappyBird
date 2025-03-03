@@ -11,88 +11,81 @@ from utils import camera_manager
 class Game:
     def __init__(self):
         self.config = ConfigParser()
-        self.config.read("config/settings.cfg")
+        self.config.read("src/config/settings.cfg")
 
         pygame.init()
         self.clock = pygame.time.Clock()
 
-        self.fps = int(self.config["Player"]["fps"])
-        self.WIDTH = int(self.config["Screen"]["width"])
-        self.HEIGHT = int(self.config["Screen"]["height"])
+        self.fps = 60
+        self.WIDTH = int(572 * 1.25)
+        self.HEIGHT = int(468 * 1.25)
 
-        self.easy = {"scroll_speed": int(self.config["LVL1"]["scroll_speed"]),
-                     "pipe_frequency": int(self.config["LVL1"]["pipe_frequency"]),
-                     "pipe_gap": int(self.config["LVL1"]["pipe_gap"]),
-                     "gravity": float(self.config["LVL1"]["gravity"])}
+        # Establecer icono de la ventana
+        icon = pygame.image.load("assets/images/golden_eagle4.png")  
+        pygame.display.set_icon(icon)
+
+        self.easy = {"scroll_speed": 2,
+                     "pipe_frequency": 2200,
+                     "pipe_gap": int(270 * 1.25),
+                     "gravity": 0.4}
         
-        self.medium = {"scroll_speed": int(self.config["LVL2"]["scroll_speed"]),
-                       "pipe_frequency": int(self.config["LVL2"]["pipe_frequency"]),
-                       "pipe_gap": int(self.config["LVL2"]["pipe_gap"]),
-                       "gravity": float(self.config["LVL2"]["gravity"])}
+        self.medium = {"scroll_speed": 3,
+                       "pipe_frequency": 1500,
+                       "pipe_gap": int(200 * 1.25),
+                       "gravity": 0.4}
 
-        self.hard = {"scroll_speed": int(self.config["LVL3"]["scroll_speed"]),
-                     "pipe_frequency": int(self.config["LVL3"]["pipe_frequency"]),
-                     "pipe_gap": int(self.config["LVL3"]["pipe_gap"]),
-                     "gravity": float(self.config["LVL3"]["gravity"])}
+        self.hard = {"scroll_speed": 4,
+                     "pipe_frequency": 800,
+                     "pipe_gap": int(130 * 1.25),
+                     "gravity": 0.5}
 
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption('Slappy Bird')
 
-        # Define font
-        self.font = pygame.freetype.SysFont(str(self.config["Game"]["font"]), int(self.config["Game"]["font_size"]))
+        self.font = pygame.freetype.SysFont("Bauhaus 93", int(40 * 1.25))
+        self.font_color = (255, 255, 255)
 
-        # Define colors
-        self.font_color = (255,255,255)
-        # self.font_color = tuple(map(int, self.config["Game"]["font_color"].split(',')))
+        self.ground_level = self.HEIGHT - 84
 
-        # Define game variables
         self.ground_scroll = 0
         self.flying = False
         self.game_over = False
-        # self.last_pipe = pygame.time.get_ticks() - self.PIPE_FRECUENCY
         self.score = 0
         self.pass_pipe = False
 
-        # Initialize camera manager
         self.camera = camera_manager.CameraManager()
 
-        # Load images
-        self.bg = pygame.image.load(self.config["Game"]["bg"])
-        self.ground_img = pygame.image.load(self.config["Game"]["ground"])
-        self.logo = pygame.image.load(self.config["Game"]["logo"])
-        self.start_btn = pygame.image.load(self.config["Game"]["start_btn"])
-        self.restart_btn = pygame.image.load(self.config["Game"]["restart_btn"])
+        self.bg = pygame.image.load("assets/images/campus_upaep.png")
+        self.ground_img = pygame.image.load("assets/images/ground1.png")
+        self.logo = pygame.image.load("assets/images/slappy_logo.png")
+        self.start_btn = pygame.image.load("assets/images/start.png")
+        self.restart_btn = pygame.image.load("assets/images/restart.png")
 
-        # Cargar imágenes de las manos
-        self.hand0 = pygame.image.load(self.config["Game"]["hand0"])
-        self.hand1 = pygame.image.load(self.config["Game"]["hand1"])
-        self.hand2 = pygame.image.load(self.config["Game"]["hand2"])
-        self.hand3 = pygame.image.load(self.config["Game"]["hand3"])
-        self.hand4 = pygame.image.load(self.config["Game"]["hand4"])
-        self.hand5 = pygame.image.load(self.config["Game"]["hand5"])
+        self.hand0 = pygame.image.load("assets/images/hand0.png")
+        self.hand1 = pygame.image.load("assets/images/hand1.png")
+        self.hand2 = pygame.image.load("assets/images/hand2.png")
+        self.hand3 = pygame.image.load("assets/images/hand3.png")
+        self.hand4 = pygame.image.load("assets/images/hand4.png")
+        self.hand5 = pygame.image.load("assets/images/hand5.png")
 
-        self.hand0 = pygame.transform.scale(self.hand0, (100, 100))
-        self.hand1 = pygame.transform.scale(self.hand1, (100, 100))
-        self.hand2 = pygame.transform.scale(self.hand2, (100, 100))
-        self.hand3 = pygame.transform.scale(self.hand3, (100, 100))
-        self.hand4 = pygame.transform.scale(self.hand4, (100, 100))
-        self.hand5 = pygame.transform.scale(self.hand5, (100, 100))
+        self.bg = pygame.transform.scale(self.bg, (self.WIDTH, self.ground_level))
+        self.ground_img = pygame.transform.scale(self.ground_img, (self.WIDTH + int(35 * 1.25), int(self.HEIGHT-84)))
+        self.logo = pygame.transform.scale(self.logo, (3 * self.WIDTH // 4, self.HEIGHT // 4))
+        self.start_btn = pygame.transform.scale(self.start_btn, (int(100 * 1.25), int(35 * 1.25)))
+        self.restart_btn = pygame.transform.scale(self.restart_btn, (int(100 * 1.25), int(30 * 1.25)))
 
-        # Reduce images size to fit the screen
-        self.bg = pygame.transform.scale(self.bg, (self.WIDTH, 384))
-        self.ground_img = pygame.transform.scale(self.ground_img, (self.WIDTH + 35, 84))
-        self.logo = pygame.transform.scale(self.logo, (3*int(self.WIDTH/4), int(self.HEIGHT/4)))
-        self.start_btn = pygame.transform.scale(self.start_btn, (100,35))
-        self.restart_btn = pygame.transform.scale(self.restart_btn, (100,30))
+        self.hand0 = pygame.transform.scale(self.hand0, (int(100 * 1.25), int(100 * 1.25)))
+        self.hand1 = pygame.transform.scale(self.hand1, (int(100 * 1.25), int(100 * 1.25)))
+        self.hand2 = pygame.transform.scale(self.hand2, (int(100 * 1.25), int(100 * 1.25)))
+        self.hand3 = pygame.transform.scale(self.hand3, (int(100 * 1.25), int(100 * 1.25)))
+        self.hand4 = pygame.transform.scale(self.hand4, (int(100 * 1.25), int(100 * 1.25)))
+        self.hand5 = pygame.transform.scale(self.hand5, (int(100 * 1.25), int(100 * 1.25)))
 
         self.bird_group = pygame.sprite.Group()
         self.pipe_group = pygame.sprite.Group()
 
-        # Create button instance
-        self.start = Button(self.WIDTH // 2 - 50, self.HEIGHT // 2 - 25, self.start_btn)
-
-        # Create restart button instance
-        self.restart = Button(self.WIDTH // 2 - 50, self.HEIGHT // 2 - 50, self.restart_btn)
+        self.start = Button(self.WIDTH // 2 - int(50 * 1.25), self.HEIGHT // 2 - int(25 * 1.25), self.start_btn)
+        self.restart = Button(self.WIDTH // 2 - int(50 * 1.25), self.HEIGHT // 2 - int(50 * 1.25), self.restart_btn)
 
     def run(self):
         run = True
@@ -108,7 +101,7 @@ class Game:
             self.pipe_group.draw(self.screen)
 
             # Draw the ground
-            self.screen.blit(self.ground_img, (self.ground_scroll, 384)) 
+            self.screen.blit(self.ground_img, (self.ground_scroll, self.ground_level))
 
             # Check the score
             if len(self.pipe_group) > 0:
@@ -129,7 +122,7 @@ class Game:
                 self.game_over = True
 
             # Check if bird has hit the ground
-            if self.flappy.rect.bottom >= 384:
+            if self.flappy.rect.bottom >= self.ground_level:
 
                 self.game_over = True
                 self.flying = False
@@ -162,6 +155,8 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
+                    pygame.quit()
+                    exit()
 
             if self.camera.pulse_detected and not self.flying and not self.game_over:
                 self.flying = True
@@ -173,8 +168,8 @@ class Game:
 
     def reset_game(self):
         self.pipe_group.empty()
-        self.flappy.rect.x = 70
-        self.flappy.rect.y = int(self.HEIGHT/2)
+        self.flappy.rect.x = int(70 * 1.25)
+        self.flappy.rect.y = self.HEIGHT // 2
         self.score = 0
         self.choose_difficulty()
         return self.score
@@ -186,7 +181,7 @@ class Game:
             self.screen.blit(self.bg, (0, 0))
             
             # Draw the ground
-            self.screen.blit(self.ground_img, (self.ground_scroll, 384))
+            self.screen.blit(self.ground_img, (self.ground_scroll, self.ground_level))
 
             # Draw the logo
             self.screen.blit(self.logo, (self.WIDTH // 8, self.HEIGHT // 8))
@@ -204,11 +199,11 @@ class Game:
                     exit()
 
     def set_difficulty(self, difficulty):
-        self.SCROLL_SPEED = difficulty.get("scroll_speed")
-        self.PIPE_FREQUENCY = difficulty.get("pipe_frequency")
-        self.PIPE_GAP = difficulty.get("pipe_gap")
+        self.SCROLL_SPEED = difficulty["scroll_speed"]
+        self.PIPE_FREQUENCY = difficulty["pipe_frequency"]
+        self.PIPE_GAP = difficulty["pipe_gap"]
         self.last_pipe = pygame.time.get_ticks() - self.PIPE_FREQUENCY
-        self.flappy = Bird(70, int(self.HEIGHT/2), self.camera, difficulty.get("gravity"))
+        self.flappy = Bird(int(70 * 1.25), self.HEIGHT // 2, self.camera, difficulty["gravity"], self.ground_level)
         self.bird_group.empty()
         self.bird_group.add(self.flappy)
 
@@ -218,39 +213,19 @@ class Game:
 
         while choosing:
             self.screen.blit(self.bg, (0, 0))
-            self.screen.blit(self.ground_img, (self.ground_scroll, 384))
+            self.screen.blit(self.ground_img, (self.ground_scroll, self.ground_level))
 
-            draw_text("Elige la dificultad", self.font, self.font_color, (0,0,0) ,self.WIDTH // 2 - 150, self.HEIGHT // 2 - 220, self.screen)
+            draw_text("Elige la dificultad", self.font, self.font_color, (0, 0, 0), self.WIDTH // 2 - 180, self.HEIGHT // 2 - 220, self.screen)
 
-            
             # Dibujar manos
-            self.screen.blit(self.hand1, (self.WIDTH // 2 - 120, self.HEIGHT // 2 - 150))
-            self.screen.blit(self.hand2, (self.WIDTH // 2 - 120, self.HEIGHT // 2 - 50))  
-            self.screen.blit(self.hand3, (self.WIDTH // 2 - 120, self.HEIGHT // 2 + 50))
+            self.screen.blit(self.hand1, (self.WIDTH // 2 - 170, self.HEIGHT // 2 - 150))
+            self.screen.blit(self.hand2, (self.WIDTH // 2 - 170, self.HEIGHT // 2 - 50))  
+            self.screen.blit(self.hand3, (self.WIDTH // 2 - 170, self.HEIGHT // 2 + 50))
 
             # Dibujar botones con etiquetas
-            draw_text("Fácil", self.font, self.font_color, (0,0,0), self.WIDTH // 2 - 20, self.HEIGHT // 2 - 120, self.screen)
-            draw_text("Medio", self.font, self.font_color, (0,0,0), self.WIDTH // 2 - 20, self.HEIGHT // 2 - 20, self.screen)
-            draw_text("Difícil", self.font, self.font_color, (0,0,0), self.WIDTH // 2 - 20, self.HEIGHT // 2 + 80, self.screen)
-
-            pygame.display.update()
-
-            difficulty = self.camera.difficulty()
-
-            if difficulty == [0, 1, 0, 0, 0]:
-                self.set_difficulty(self.easy)
-                choosing = False
-                self.run()
-
-            elif difficulty == [0, 1, 1, 0, 0]:
-                self.set_difficulty(self.medium)
-                choosing = False
-                self.run()
-
-            elif difficulty == [0, 1, 1, 1, 0]:
-                self.set_difficulty(self.hard)
-                choosing = False
-                self.run()
+            draw_text("Fácil", self.font, self.font_color, (0, 0, 0), self.WIDTH // 2 - 20, self.HEIGHT // 2 - 120, self.screen)
+            draw_text("Medio", self.font, self.font_color, (0, 0, 0), self.WIDTH // 2 - 20, self.HEIGHT // 2 - 20, self.screen)
+            draw_text("Difícil", self.font, self.font_color, (0, 0, 0), self.WIDTH // 2 - 20, self.HEIGHT // 2 + 80, self.screen)
 
             pygame.display.update()
 
@@ -259,3 +234,16 @@ class Game:
                     pygame.quit()
                     exit()
 
+            difficulty = self.camera.difficulty()
+
+            if difficulty == [0, 1, 0, 0, 0]:  # Fácil
+                self.set_difficulty(self.easy)
+                choosing = False
+            elif difficulty == [0, 1, 1, 0, 0]:  # Medio
+                self.set_difficulty(self.medium)
+                choosing = False
+            elif difficulty == [0, 1, 1, 1, 0]:  # Difícil
+                self.set_difficulty(self.hard)
+                choosing = False
+
+        self.run()  # Corre el juego después de elegir la dificultad
