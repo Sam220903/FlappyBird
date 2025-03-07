@@ -16,6 +16,24 @@ class Game:
         pygame.init()
         self.clock = pygame.time.Clock()
 
+        pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
+        pygame.mixer.music.load("assets/sounds/main_song.wav")
+        pygame.mixer.music.set_volume(1)
+
+        self.fall_sound = pygame.mixer.Sound("assets/sounds/fall.wav")
+        self.fall_sound.set_volume(1)
+
+        self.played_fall_sound = False
+
+        self.select_sound = pygame.mixer.Sound("assets/sounds/select.wav")
+        self.select_sound.set_volume(1)
+
+        self.increase_score_sound = pygame.mixer.Sound("assets/sounds/point.wav")
+        self.increase_score_sound.set_volume(1)
+
+        self.flap_sound = pygame.mixer.Sound("assets/sounds/flap.wav")
+        self.flap_sound.set_volume(1)
+
         self.fps = 60
         self.WIDTH = int(572 * 1.25)
         self.HEIGHT = int(468 * 1.25)
@@ -113,6 +131,7 @@ class Game:
                 if self.pass_pipe:
                     if self.bird_group.sprites()[0].rect.left > self.pipe_group.sprites()[0].rect.right:
                         self.score += 1
+                        self.increase_score_sound.play()
                         self.pass_pipe = False
 
             draw_text(str(self.score), self.font, self.font_color, (0,0,0), int(self.WIDTH/2), 20, self.screen)
@@ -123,7 +142,6 @@ class Game:
 
             # Check if bird has hit the ground
             if self.flappy.rect.bottom >= self.ground_level:
-
                 self.game_over = True
                 self.flying = False
 
@@ -148,8 +166,15 @@ class Game:
 
             # Check for game over and reset
             if self.game_over:
+                if not self.played_fall_sound:
+                    self.fall_sound.play()
+                    self.played_fall_sound = True
+
+                pygame.mixer.music.stop()  # Solo detiene la música actual  
+
                 if self.restart.draw(self.screen):
                     self.game_over = False
+                    self.select_sound.play()
                     self.score = self.reset_game()
 
             for event in pygame.event.get():
@@ -157,6 +182,9 @@ class Game:
                     run = False
                     pygame.quit()
                     exit()
+
+            if self.camera.pulse_detected:
+                self.flap_sound.play()
 
             if self.camera.pulse_detected and not self.flying and not self.game_over:
                 self.flying = True
@@ -167,6 +195,8 @@ class Game:
 
 
     def reset_game(self):
+        pygame.mixer.music.play(-1)  # Reanuda la música en bucle
+        self.played_fall_sound = False
         self.pipe_group.empty()
         self.flappy.rect.x = int(70 * 1.25)
         self.flappy.rect.y = self.HEIGHT // 2
@@ -174,8 +204,9 @@ class Game:
         self.choose_difficulty()
         return self.score
     
-    def start_screen(self):
+    def start_game(self):
         starting = True
+        pygame.mixer.music.play(-1)
         while starting:
             # Draw background
             self.screen.blit(self.bg, (0, 0))
@@ -189,6 +220,7 @@ class Game:
             # Draw the start button and check if clicked
             if self.start.draw(self.screen):  
                 starting = False  # Salir del loop para iniciar el juego
+                self.select_sound.play()
                 self.choose_difficulty()
 
             pygame.display.update()
@@ -206,6 +238,7 @@ class Game:
         self.flappy = Bird(int(70 * 1.25), self.HEIGHT // 2, self.camera, difficulty["gravity"], self.ground_level)
         self.bird_group.empty()
         self.bird_group.add(self.flappy)
+        self.select_sound.play()
 
 
     def choose_difficulty(self):

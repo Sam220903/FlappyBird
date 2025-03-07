@@ -9,6 +9,7 @@ class CameraManager:
         self.detector = HandDetector(detectionCon=0.8, maxHands=1)
         self.pulse_detected = False
         self.running = True
+        self.open_hand = False  
 
         # Iniciar el hilo de detección
         self.thread = threading.Thread(target=self._detect_pulse, daemon=True)
@@ -50,7 +51,11 @@ class CameraManager:
 
                 # Detectar si la mano está cerrada
                 fingers = self.detector.fingersUp(hand1)
-                self.pulse_detected = all(f == 0 for f in fingers)
+                is_closed = all(f == 0 for f in fingers)
+                is_open = any(f == 1 for f in fingers)
+
+                self.pulse_detected = self.open_hand and is_closed 
+                self.open_hand = is_open
 
             # Mostrar la ventana con solo el esqueleto de la mano
             small_frame = cv2.resize(black_frame, (250, 200))  # Ajusta el tamaño según prefieras
