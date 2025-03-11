@@ -1,1 +1,4 @@
 .venv
+build
+setup.py
+__pycache__

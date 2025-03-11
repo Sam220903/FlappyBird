@@ -66,7 +66,7 @@ class CameraManager:
                 self.stop()
                 break
 
-    def difficulty(self):
+    def getSign(self):
         while self.running:
             ret, frame = self.cap.read()
             if not ret:
@@ -83,6 +83,39 @@ class CameraManager:
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 self.stop()
                 break
+
+    def thumbUp(self):
+        """Detecta si la mano está haciendo un gesto de 'pulgar arriba'"""
+        while self.running:
+            ret, frame = self.cap.read()
+            if not ret:
+                return False
+
+            hands, _ = self.detector.findHands(frame, draw=False)
+
+            if hands:
+                hand1 = hands[0]
+                fingers = self.detector.fingersUp(hand1)
+
+                # Obtener puntos clave del pulgar y la muñeca
+                lmList = hand1["lmList"]
+                thumb_tip = lmList[4]  # Punta del pulgar
+                thumb_base = lmList[2]  # Base del pulgar
+                wrist = lmList[0]  # Muñeca
+
+                # Comprobar si el pulgar está levantado y en posición correcta
+                is_thumb_up = (
+                    fingers[0] == 1 and  # Solo el pulgar está levantado
+                    all(f == 0 for f in fingers[1:]) and  # Ningún otro dedo está levantado
+                    thumb_tip[1] < thumb_base[1] and  # La punta del pulgar está por encima de la base
+                    thumb_tip[1] < wrist[1]  # La punta del pulgar está más arriba que la muñeca
+                )
+
+                if is_thumb_up:
+                    print("Pulgar arriba detectado!")
+                    return True
+
+            return False
 
     def stop(self):
         """Detiene la detección y libera la cámara"""

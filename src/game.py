@@ -1,5 +1,5 @@
 import pygame
-from pygame.locals import *
+import pygame.freetype
 from game_objects.bird import Bird
 from game_objects.pipe import Pipe
 from game_objects.button import Button
@@ -22,6 +22,8 @@ class Game:
 
         self.fall_sound = pygame.mixer.Sound("assets/sounds/fall.wav")
         self.fall_sound.set_volume(1)
+
+        self.die_bird = False
 
         self.played_fall_sound = False
 
@@ -63,6 +65,11 @@ class Game:
         self.font = pygame.freetype.SysFont("Bauhaus 93", int(40 * 1.25))
         self.font_color = (255, 255, 255)
 
+        self.font2 = pygame.freetype.SysFont("Agency FB", int(40), 1)
+
+
+
+
         self.ground_level = self.HEIGHT - 84
 
         self.ground_scroll = 0
@@ -85,6 +92,7 @@ class Game:
         self.hand3 = pygame.image.load("assets/images/hand3.png")
         self.hand4 = pygame.image.load("assets/images/hand4.png")
         self.hand5 = pygame.image.load("assets/images/hand5.png")
+        self.like_hand = pygame.image.load("assets/images/like_hand.png")
 
         self.bg = pygame.transform.scale(self.bg, (self.WIDTH, self.ground_level))
         self.ground_img = pygame.transform.scale(self.ground_img, (self.WIDTH + int(35 * 1.25), int(self.HEIGHT-84)))
@@ -98,6 +106,7 @@ class Game:
         self.hand3 = pygame.transform.scale(self.hand3, (int(100 * 1.25), int(100 * 1.25)))
         self.hand4 = pygame.transform.scale(self.hand4, (int(100 * 1.25), int(100 * 1.25)))
         self.hand5 = pygame.transform.scale(self.hand5, (int(100 * 1.25), int(100 * 1.25)))
+        self.like_hand = pygame.transform.scale(self.like_hand, (int(100 * 1.25), int(100 * 1.25)))
 
         self.bird_group = pygame.sprite.Group()
         self.pipe_group = pygame.sprite.Group()
@@ -166,13 +175,21 @@ class Game:
 
             # Check for game over and reset
             if self.game_over:
+                self.die_bird = True
                 if not self.played_fall_sound:
                     self.fall_sound.play()
                     self.played_fall_sound = True
 
                 pygame.mixer.music.stop()  # Solo detiene la música actual  
 
-                if self.restart.draw(self.screen):
+                # Draw the like hand image
+                self.screen.blit(self.hand4, (self.WIDTH // 2 - int(50 * 1.25), self.HEIGHT // 2 - int(25 * 1.25)))
+
+                draw_text("Cuatro dedos para reiniciar", self.font2, self.font_color, (0, 0, 0), self.WIDTH // 2 - int(145 * 1.25), self.HEIGHT // 2 - int(80 * 1.25), self.screen)
+
+                pygame.display.update()
+                
+                if self.camera.getSign() == [0, 1, 1, 1, 1]:
                     self.game_over = False
                     self.select_sound.play()
                     self.score = self.reset_game()
@@ -183,7 +200,7 @@ class Game:
                     pygame.quit()
                     exit()
 
-            if self.camera.pulse_detected:
+            if self.camera.pulse_detected and not self.die_bird:
                 self.flap_sound.play()
 
             if self.camera.pulse_detected and not self.flying and not self.game_over:
@@ -197,6 +214,7 @@ class Game:
     def reset_game(self):
         pygame.mixer.music.play(-1)  # Reanuda la música en bucle
         self.played_fall_sound = False
+        self.die_bird = False
         self.pipe_group.empty()
         self.flappy.rect.x = int(70 * 1.25)
         self.flappy.rect.y = self.HEIGHT // 2
@@ -217,18 +235,27 @@ class Game:
             # Draw the logo
             self.screen.blit(self.logo, (self.WIDTH // 8, self.HEIGHT // 8))
 
+            # Draw the like hand image
+            self.screen.blit(self.hand4, (self.WIDTH // 2 - int(50 * 1.25), self.HEIGHT // 2 - int(-25 * 1.25)))
+
+            draw_text("Cuatro dedos para comenzar", self.font2, self.font_color, (0, 0, 0), self.WIDTH // 2 - int(145 * 1.25), self.HEIGHT // 2 - int(20 * 1.25), self.screen)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+
+            pygame.display.update()
+
             # Draw the start button and check if clicked
-            if self.start.draw(self.screen):  
+            if self.camera.getSign() == [0, 1, 1, 1, 1]:  
                 starting = False  # Salir del loop para iniciar el juego
                 self.select_sound.play()
                 self.choose_difficulty()
 
             pygame.display.update()
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
+            
 
     def set_difficulty(self, difficulty):
         self.SCROLL_SPEED = difficulty["scroll_speed"]
@@ -267,7 +294,7 @@ class Game:
                     pygame.quit()
                     exit()
 
-            difficulty = self.camera.difficulty()
+            difficulty = self.camera.getSign()
 
             if difficulty == [0, 1, 0, 0, 0]:  # Fácil
                 self.set_difficulty(self.easy)

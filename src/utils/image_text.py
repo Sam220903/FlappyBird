@@ -13,3 +13,4 @@ def draw_text(text : str, font : SysFont, color : tuple, outline_color : tuple ,
 
     # Dibuja el texto principal encima
     font.render_to(screen, (x, y), text, color)
+
